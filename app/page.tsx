@@ -1,65 +1,167 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import Question from "@/components/Question";
+import { AnyQuestion, MCQQuestion, MRQQuestion, TextQuestion, NumberQuestion, BooleanQuestion, DropdownQuestion, FileQuestion } from "@/components/Question/types";
+import { validateAnswer } from "@/components/Question/validators";
+
+// Dummy quiz questions about chorca.net
+const rawQuestions = [
+  {
+    type: "MCQ",
+    question: "<p>What is Chorca.net primarily used for?</p>",
+    A: "<p>Video Streaming</p>",
+    B: "<p>Online Shopping</p>",
+    C: "<p>Educational Content</p>",
+    D: "<p>Social Media</p>",
+    E: null,
+    answer: null,
+    solution: "<p>C is correct</p>",
+  },
+  {
+    type: "MCQ",
+    question: "<p>Which programming language is primarily used for Chorca.net?</p>",
+    A: "<p>JavaScript</p>",
+    B: "<p>Python</p>",
+    C: "<p>Java</p>",
+    D: "<p>Ruby</p>",
+    E: null,
+    answer: null,
+    solution: "<p>A is correct</p>",
+  },
+  {
+    type: "MCQ",
+    question: "<p>Chorca.net supports which of the following content types?</p>",
+    A: "<p>Articles</p>",
+    B: "<p>Videos</p>",
+    C: "<p>Podcasts</p>",
+    D: "<p>All of the above</p>",
+    E: null,
+    answer: null,
+    solution: "<p>D is correct</p>",
+  },
+  {
+    type: "MCQ",
+    question: "<p>What is Chorca.net primarily used for?</p>",
+    A: "<p>Video Streaming</p>",
+    B: "<p>Online Shopping</p>",
+    C: "<p>Educational Content</p>",
+    D: "<p>Social Media</p>",
+    E: null,
+    answer: null,
+    solution: "<p>C is correct</p>",
+  },
+  {
+    type: "text",
+    question: "<p>Who founded Chorca.net?</p>",
+    answer: null,
+    solution: "<p>John Doe</p>",
+  },
+  {
+    type: "boolean",
+    question: "<p>Chorca.net is free to use?</p>",
+    answer: null,
+    solution: "<p>True</p>",
+  },
+  {
+    type: "dropdown",
+    question: "<p>Choose the primary programming language used for Chorca.net:</p>",
+    A: "<p>JavaScript</p>",
+    B: "<p>Python</p>",
+    C: "<p>Java</p>",
+    D: "<p>Ruby</p>",
+    answer: null,
+    solution: "<p>JavaScript</p>",
+  },
+];
+
+// Convert raw questions to AnyQuestion type
+const formattedQuestions: AnyQuestion[] = rawQuestions.map((q, index) => {
+  const id = `q${index + 1}`;
+  switch (q.type.toLowerCase()) {
+    case "mcq":
+      return {
+        id,
+        type: "mcq",
+        question: q.question,
+        options: [
+          { label: q.A!, value: "A" },
+          { label: q.B!, value: "B" },
+          { label: q.C!, value: "C" },
+          { label: q.D!, value: "D" },
+        ].filter(Boolean),
+        required: true,
+        answer: null,
+      } as MCQQuestion;
+
+    case "text":
+      return { id, type: "text", question: q.question, required: true, answer: "" } as TextQuestion;
+
+    case "boolean":
+      return { id, type: "boolean", question: q.question, required: true, answer: null } as BooleanQuestion;
+
+    case "dropdown":
+      return {
+        id,
+        type: "dropdown",
+        question: q.question,
+        options: [
+          { label: q.A!, value: "A" },
+          { label: q.B!, value: "B" },
+          { label: q.C!, value: "C" },
+          { label: q.D!, value: "D" },
+        ].filter(Boolean),
+        required: true,
+        answer: null,
+      } as DropdownQuestion;
+
+    default:
+      throw new Error(`Unsupported question type: ${q.type}`);
+  }
+});
+
+// Type helper for answer values
+type AnswerValue<T extends AnyQuestion> =
+  T extends MCQQuestion | DropdownQuestion ? string | null :
+  T extends MRQQuestion ? string[] :
+  T extends TextQuestion ? string :
+  T extends NumberQuestion ? number | null :
+  T extends BooleanQuestion ? boolean | null :
+  T extends FileQuestion ? File | null :
+  never;
 
 export default function Home() {
+  const [answers, setAnswers] = useState<Record<string, string | number | boolean | string[] | File | null>>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
+
+  const handleChange = <T extends AnyQuestion>(id: string, value: AnswerValue<T>) => {
+    setAnswers((prev) => ({ ...prev, [id]: value }));
+
+    const question = formattedQuestions.find((q) => q.id === id)!;
+    const err = validateAnswer(question, value);
+    setErrors((prev) => ({ ...prev, [id]: err }));
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="max-w-xl mx-auto mt-10 space-y-6">
+      <h1 className="text-2xl font-bold text-center text-gray-100">Chorca.net Quiz</h1>
+
+      {formattedQuestions.map((q) => (
+        <div key={q.id}>
+          <Question
+            question={q}
+            answer={answers[q.id] as any} // TS will infer correctly via discriminated union
+            onChange={(val) => handleChange(q.id, val)}
+            onValidate={(err) => setErrors((prev) => ({ ...prev, [q.id]: err }))}
+          />
+          {errors[q.id] && <p className="text-red-500 mt-1">{errors[q.id]}</p>}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      ))}
+
+      <div className="bg-gray-900 text-gray-300 p-4 rounded">
+        <h2 className="font-semibold mb-2">Current Answers:</h2>
+        <pre>{JSON.stringify(answers, null, 2)}</pre>
+      </div>
     </div>
   );
 }
