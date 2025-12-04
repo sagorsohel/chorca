@@ -150,7 +150,7 @@ export default function Home() {
         <div key={q.id}>
           <Question
             question={q}
-            answer={answers[q.id] as any} // TS will infer correctly via discriminated union
+            answer={answers[q.id] as string} // TS will infer correctly via discriminated union
             onChange={(val) => handleChange(q.id, val)}
             onValidate={(err) => setErrors((prev) => ({ ...prev, [q.id]: err }))}
           />

@@ -63,10 +63,10 @@ export default function Question<T extends AnyQuestion>({
   onChange,
   onValidate,
 }: QuestionProps<T>) {
-  const Renderer = componentMap[question.type] as React.FC<any>;
+  const Renderer = componentMap[question.type] as React.FC<QuestionProps<T>>;
 
-  const handleChange = (value: QuestionProps<T>["answer"]) => {
-    onChange(value);
+  const handleChange = (value: string | number | boolean | string[] | File | null) => {
+    onChange(value as string | number | boolean | string[] | File | null);
     const error = validateAnswer(question, value);
     onValidate?.(error);
   };
