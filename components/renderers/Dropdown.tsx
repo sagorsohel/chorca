@@ -6,7 +6,7 @@ import { DropdownQuestion } from "../Question/types";
 
 interface Props {
   question: DropdownQuestion;
-  answer: string;
+  answer: string |null;
   onChange: (value: string) => void;
 }
 

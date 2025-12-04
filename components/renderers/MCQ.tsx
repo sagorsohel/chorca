@@ -13,7 +13,7 @@ const renderHTML = (html: string | null) => {
 
 interface Props {
   question: MCQQuestion;
-  answer: string;
+  answer: string | null;
   onChange: (value: string) => void;
 }
 
