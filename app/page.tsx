@@ -144,7 +144,7 @@ export default function Home() {
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
-      <h1 className="text-2xl font-bold text-center text-gray-100">Chorca.net Quiz</h1>
+      <h1 className="text-2xl font-bold text-center text-gray-100">Chorcha.net Quiz</h1>
 
       {formattedQuestions.map((q) => (
         <div key={q.id}>
